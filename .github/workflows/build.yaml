@@ -43,7 +43,7 @@ jobs:
         uses: golangci/golangci-lint-action@v9
         with:
           version: v2.7.2
-          args: run ./service/...
+          args: ./service/...
 
 
   build-and-push:
