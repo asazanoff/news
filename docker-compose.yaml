@@ -14,6 +14,7 @@ services:
       - DB_MAX_OPEN_LIFE_TIME=${DB_MAX_OPEN_LIFE_TIME}
       - SERVICE_READ_TIMEOUT=${SERVICE_READ_TIMEOUT}
       - SERVICE_WRITE_TIMEOUT=${SERVICE_WRITE_TIMEOUT}
+      - AUTH_TOKEN=${AUTH_TOKEN}
     restart: unless-stopped
     ports:
       - 8080:8080

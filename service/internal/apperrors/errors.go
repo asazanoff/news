@@ -2,7 +2,6 @@ package apperrors
 
 import "errors"
 
-// Базовые ошибки приложения
 var (
 	ErrNewsNotFound = errors.New("news not found")
 	ErrInvalidID    = errors.New("invalid id format")
@@ -10,7 +9,6 @@ var (
 	ErrValidation   = errors.New("validation failed")
 )
 
-// AppError - кастомная ошибка с HTTP статусом
 type AppError struct {
 	Err        error
 	Message    string
@@ -25,7 +23,6 @@ func (e *AppError) Unwrap() error {
 	return e.Err
 }
 
-// Конструкторы
 func NewBadRequest(message string) *AppError {
 	return &AppError{
 		Err:        ErrInvalidBody,

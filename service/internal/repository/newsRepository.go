@@ -9,6 +9,8 @@ import (
 	"service/internal/apperrors"
 	"service/internal/models"
 
+	"service/pkg/logger"
+
 	"github.com/lib/pq"
 	"github.com/sirupsen/logrus"
 	"gopkg.in/reform.v1"
@@ -32,11 +34,11 @@ type INewsRepository interface {
 
 type NewsRepository struct {
 	db  *reform.DB
-	log *logrus.Logger
+	log *logger.Logger
 	ctx context.Context
 }
 
-func NewNewsRepository(db *reform.DB, log *logrus.Logger, ctx context.Context) INewsRepository {
+func NewNewsRepository(db *reform.DB, log *logger.Logger, ctx context.Context) INewsRepository {
 	return &NewsRepository{
 		db:  db,
 		log: log,
@@ -57,7 +59,7 @@ func (r *NewsRepository) GetNews(limit, offset int64) ([]models.NewsWithCategori
 	}
 	defer rows.Close()
 
-	var newsList []models.NewsWithCategories
+	newsList := make([]models.NewsWithCategories, 0)
 	for rows.Next() {
 		var n models.NewsWithCategories
 		var categories []int64
@@ -137,11 +139,11 @@ func (r *NewsRepository) UpdateNews(newsId int64, updateFields map[string]interf
 
 	if len(updateFields) > 0 {
 		if title, ok := updateFields["title"]; ok {
-			news.Title = *title.(*string)
+			news.Title = title.(string)
 		}
 
 		if content, ok := updateFields["content"]; ok {
-			news.Content = *content.(*string)
+			news.Content = content.(string)
 		}
 
 		if err = tx.Update(news); err != nil {

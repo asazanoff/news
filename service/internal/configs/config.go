@@ -5,9 +5,10 @@ import (
 )
 
 type Config struct {
-	Database Database
-	Service  Service
-	Port     string `envconfig:"PORT" default:":8080"`
+	Database  Database
+	Service   Service
+	AuthToken string `envconfig:"AUTH_TOKEN" required:"true"`
+	Port      string `envconfig:"PORT" default:":8080"`
 }
 
 type Database struct {

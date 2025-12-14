@@ -6,13 +6,15 @@ import (
 	"fmt"
 	"service/internal/configs"
 	"service/internal/handlers"
+	"service/internal/handlers/errors"
+	"service/internal/handlers/middleware"
 	handler "service/internal/handlers/news"
 	"service/internal/repository"
 	"service/internal/service"
 	"service/pkg/db"
+	"service/pkg/logger"
 	"time"
 
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 
 	"github.com/gofiber/fiber/v2"
@@ -21,13 +23,13 @@ import (
 )
 
 type Server struct {
-	log    *logrus.Logger
+	log    *logger.Logger
 	config configs.Config
 	app    *fiber.App
 	db     *sql.DB
 }
 
-func NewServer(ctx context.Context, log *logrus.Logger) (*Server, error) {
+func NewServer(ctx context.Context, log *logger.Logger) (*Server, error) {
 	cnf, err := configs.NewParsedConfig()
 	if err != nil {
 		return nil, fmt.Errorf("failed to parse config: %w", err)
@@ -42,7 +44,7 @@ func NewServer(ctx context.Context, log *logrus.Logger) (*Server, error) {
 	newsService := service.NewNewsService(repo, log)
 	newsHandler := handler.NewNewsHandler(newsService, log)
 	app := fiber.New(fiber.Config{
-		ErrorHandler: handlers.ErrorHandler(log),
+		ErrorHandler: errors.ErrorHandler(log),
 		ReadTimeout:  time.Duration(cnf.Service.ReadTimeout) * time.Second,
 		WriteTimeout: time.Duration(cnf.Service.WriteTimeout) * time.Second,
 	})
@@ -58,11 +60,10 @@ func NewServer(ctx context.Context, log *logrus.Logger) (*Server, error) {
 		},
 	}))
 
-	app.Use(logger.New(logger.Config{
-		Format: "[${time}] ${status} - ${method} ${path} ${latency}\n",
-	}))
+	//в чем разница если устанавливать в сетап роутс мидлваре
+	app.Use(middleware.HTTPLogger(log))
 
-	handlers.SetupRoutes(app, newsHandler)
+	handlers.SetupRoutes(app, newsHandler, middleware.AuthMiddleware(cnf.AuthToken, log))
 
 	return &Server{
 		config: cnf,

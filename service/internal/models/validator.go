@@ -7,7 +7,7 @@ import (
 )
 
 var (
-	ErrBodyEmpty        = errors.New("body cannot be empty")
+	ErrBodyEmpty        = errors.New("body have to contains news param")
 	ErrTitleLength      = errors.New("title length must be between 1 and 255")
 	ErrContentLength    = errors.New("content length must be greater 1")
 	ErrCategoriesLength = errors.New("categories length must be greater 1")

@@ -7,16 +7,17 @@ import (
 	"service/internal/service"
 	"strconv"
 
+	"service/pkg/logger"
+
 	"github.com/gofiber/fiber/v2"
-	"github.com/sirupsen/logrus"
 )
 
 type NewsHandler struct {
 	service service.INewsService
-	log     *logrus.Logger
+	log     *logger.Logger
 }
 
-func NewNewsHandler(service service.INewsService, log *logrus.Logger) NewsHandler {
+func NewNewsHandler(service service.INewsService, log *logger.Logger) NewsHandler {
 	return NewsHandler{
 		service: service,
 		log:     log,
@@ -64,7 +65,7 @@ func (h *NewsHandler) CreateNews(c *fiber.Ctx) error {
 
 func (h *NewsHandler) EditNews(c *fiber.Ctx) error {
 	idParam := c.Params("id")
-	id, err := strconv.ParseInt(idParam, 10, 64)
+	id, err := strconv.ParseUint(idParam, 10, 64)
 	if err != nil {
 		return apperrors.NewBadRequest("Invalid ID format")
 	}
@@ -79,7 +80,7 @@ func (h *NewsHandler) EditNews(c *fiber.Ctx) error {
 		return apperrors.NewValidation(err.Error())
 	}
 
-	if err = h.service.EditNews(id, editForm); err != nil {
+	if err = h.service.EditNews(int64(id), editForm); err != nil {
 		return err
 	}
 
